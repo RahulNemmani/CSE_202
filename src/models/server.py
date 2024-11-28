@@ -1,3 +1,6 @@
+import random
+random.seed(42) #set seed for reproducibility
+
 class Server:
     """
     Each server has a resource capacity tuple (c_cpu,c_memory,c_storage).
