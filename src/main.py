@@ -14,3 +14,11 @@
 
 # TODO : Anahita - Write the classes and constructors for models referring to the proposal. Also write a method that randomly initializes n
 # models (tasks + servers) with their attributes given n. Rahul will use this method when he tests for different n. Set seed for reproducibility.
+
+
+def main ():
+    print("rahul")
+
+
+if __name__ == "__main__":
+    main()
