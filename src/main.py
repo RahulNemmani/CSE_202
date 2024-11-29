@@ -1,8 +1,25 @@
+import random
+import models
+import sys
+import os
+
+# Add the directory containing 'myclass.py' to sys.path
+sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
+from task_scheduler import *
 # CONSTANTS
 # alpha, beta, rho, Q, E, tasks, servers, phermones
 # E, phermones are matrices (len(tasks) * len(servers)) or it's transpose
 # tasks and servers are instances of the task and server in models
-
+alpha = 1
+beta = 1
+rho = 0.3
+Q = 100
+ants = 5
+epochs = 50
+n = 10 # num tasks
+m = 8 # num servers
+E = [[random.uniform(10, 100) for server in range(m)] for task in range(n)]
+phermones = [[0.5 for server in range(m)] for task in range(n)]
 # TODO : Shriniwas - instantiate all of the above constants and decide their values (which we will tweak)
 # Shriniwas - write thr ACO scheduler
 
@@ -24,6 +41,11 @@ def main ():
 
     randomScheduler = Random_Scheduler(allTasks, allServers)
     print(randomScheduler)
+
+    tasks = Task.initTasks(n)
+    servers = Server.initServers(m)
+    
+    print(ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones))
 
 
 if __name__ == "__main__":
