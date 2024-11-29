@@ -10,7 +10,7 @@ class Server:
         self.memory = memory
         self.storage = storage
         
-    def initServers(num_models):
+    def initServers(self, num_models):
         """
         Input:  number of servers to initialize
         Output: list of servers S with capacity attributes each
@@ -24,7 +24,7 @@ class Server:
             c_memory = random.uniform(400, 512)  
             c_storage = random.uniform(24000, 32000) 
             
-             # server initialized and added to list of Servers
+            # server initialized and added to list of Servers
             S.append(Server(c_cpu, c_memory, c_storage))
             
         return S

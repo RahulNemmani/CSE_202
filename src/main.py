@@ -14,10 +14,19 @@
 
 # TODO : Anahita - Write the classes and constructors for models referring to the proposal. Also write a method that randomly initializes n
 # models (tasks + servers) with their attributes given n. Rahul will use this method when he tests for different n. Set seed for reproducibility.
-
+from models.server import Server
+from models.task import Task
+from task_scheduler import Random_Scheduler
 
 def main ():
-    print("rahul")
+    servers = Server(10, 10, 10)
+    allServers = servers.initServers(10)
+
+    tasks = Task(10,10,10,20)
+    allTasks = tasks.initTasks(10)
+
+    randomScheduler = Random_Scheduler(allTasks, allServers)
+    print(randomScheduler)
 
 
 if __name__ == "__main__":
