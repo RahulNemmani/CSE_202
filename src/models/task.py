@@ -11,7 +11,7 @@ class Task:
         self.storage = storage
         self.duration = duration
         
-    def initTasks(self, num_models):
+    def initTasks(num_models):
         """
         Input:  number of tasks to initialize
         Output: list of tasks T with capacity and duration attributes each

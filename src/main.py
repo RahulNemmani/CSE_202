@@ -19,11 +19,8 @@ from models.task import Task
 from task_scheduler import Random_Scheduler
 
 def main ():
-    servers = Server(10, 10, 10)
-    allServers = servers.initServers(10)
-
-    tasks = Task(10,10,10,20)
-    allTasks = tasks.initTasks(10)
+    allTasks = Task.initTasks(10)
+    allServers = Server.initServers(10)
 
     randomScheduler = Random_Scheduler(allTasks, allServers)
     print(randomScheduler)

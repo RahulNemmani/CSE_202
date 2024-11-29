@@ -103,10 +103,10 @@ def Random_Scheduler(tasks, servers): # random task allottment for baseline comp
     #         print("memory of task ", s.memory)
     #         print("storage of task ", s.storage)
     #         print("duration of this task ", s.duration)
-    #     index += 1
+        # index += 1
     maxTime = 0
     for j in range(0,numServers):
         timeTaken = randomSchedulerMakespan(tasksInServers[j], servers[j])
-        print("timeTaken ", timeTaken)
+        #print("timeTaken ", timeTaken)
         maxTime = max(maxTime, timeTaken)
     return maxTime

@@ -10,7 +10,7 @@ class Server:
         self.memory = memory
         self.storage = storage
         
-    def initServers(self, num_models):
+    def initServers(num_models):
         """
         Input:  number of servers to initialize
         Output: list of servers S with capacity attributes each
