@@ -24,7 +24,7 @@ class Server:
             c_memory = random.uniform(400, 512)  
             c_storage = random.uniform(24000, 32000) 
             
-             # server initialized and added to list of Servers
+            # server initialized and added to list of Servers
             S.append(Server(c_cpu, c_memory, c_storage))
             
         return S

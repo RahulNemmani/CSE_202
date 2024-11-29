@@ -5,8 +5,6 @@ import os
 
 # Add the directory containing 'myclass.py' to sys.path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
-from task import Task
-from server import Server
 from task_scheduler import *
 # CONSTANTS
 # alpha, beta, rho, Q, E, tasks, servers, phermones
@@ -33,9 +31,22 @@ phermones = [[0.5 for server in range(m)] for task in range(n)]
 
 # TODO : Anahita - Write the classes and constructors for models referring to the proposal. Also write a method that randomly initializes n
 # models (tasks + servers) with their attributes given n. Rahul will use this method when he tests for different n. Set seed for reproducibility.
+from models.server import Server
+from models.task import Task
+from task_scheduler import Random_Scheduler
 
-if __name__ == '__main__':
+def main ():
+    allTasks = Task.initTasks(10)
+    allServers = Server.initServers(10)
+
+    randomScheduler = Random_Scheduler(allTasks, allServers)
+    print(randomScheduler)
+
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)
     
     print(ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones))
+
+
+if __name__ == "__main__":
+    main()

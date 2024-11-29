@@ -22,8 +22,8 @@ class Task:
             
             # randomize attributes
             c_cpu = random.randint(1, 100)
-            c_memory = random.uniform(8, 128) 
-            c_storage = random.uniform(5, 8000) 
+            c_memory = random.uniform(8, 128)
+            c_storage = random.uniform(5, 8000)
             duration = random.uniform(1, 2000) 
             
              # task initialized and added to list of Tasks
