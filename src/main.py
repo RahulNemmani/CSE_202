@@ -40,11 +40,12 @@ def main ():
     allServers = Server.initServers(10)
 
     randomScheduler = Random_Scheduler(allTasks, allServers)
-    print(randomScheduler)
+    print("RUNNING THE RANDOM SCHEDULER - ")
+    print("time taken by the random scheduler - ", randomScheduler)
 
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)
-    
+    print("RUNNING THE ACO SCHEDULER")
     print(ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones))
 
 

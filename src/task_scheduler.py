@@ -17,7 +17,15 @@ def load_imbalance(solution, tasks, servers):
 
 
 def getCost(solution, tasks, servers):
-    return makespan() + load_imbalance(solution, tasks, servers) # weighted sum
+    time_taken = -float('inf')
+    for server_index in range(len(solution)):
+        currServer = servers[server_index]
+        currTasks = []
+        for task_index in solution[server_index]:
+            currTasks.append(tasks[task_index])
+        time_taken = max(time_taken, makespan(currTasks, currServer))
+    print("time taken (Makespan) - ", time_taken)
+    return 3 * time_taken + 2 * load_imbalance(solution, tasks, servers) # weighted sum
     
 
 def heuristic(server, task): # will be used in calculating server probability
@@ -144,14 +152,15 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
 
 def Random_Scheduler(tasks, servers): # random task allottment for baseline comparsion
     numServers = len(servers)
-    tasksInServers = []
-    for i in range(numServers):
-        tasksInServers.append([])
+    tasksInServers = [[] for s in servers]
 
-    for task in tasks:
+    solution = [[] for s in servers]
+    for i in range(len(tasks)):
         randomServer = random.randint(0, numServers - 1)
         serverToAdd = tasksInServers[randomServer]
-        serverToAdd.append(task)
+        serverToAdd.append(tasks[i])
+        solution[randomServer].append(i)
+
     
     '''
     index = 0
@@ -170,4 +179,6 @@ def Random_Scheduler(tasks, servers): # random task allottment for baseline comp
         timeTaken = makespan(tasksInServers[j], servers[j])
         #print("timeTaken ", timeTaken)
         maxTime = max(maxTime, timeTaken)
+    
+    print(getCost(solution, tasks, servers))
     return maxTime
