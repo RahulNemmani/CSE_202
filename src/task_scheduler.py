@@ -174,11 +174,6 @@ def Random_Scheduler(tasks, servers): # random task allottment for baseline comp
             print("duration of this task ", s.duration)
         index += 1
     '''
-    maxTime = 0
-    for j in range(0, numServers):
-        timeTaken = makespan(tasksInServers[j], servers[j])
-        #print("timeTaken ", timeTaken)
-        maxTime = max(maxTime, timeTaken)
-    
-    print(getCost(solution, tasks, servers))
-    return maxTime
+    totalCost = getCost(solution, tasks, servers)
+    print(totalCost)
+    return totalCost
