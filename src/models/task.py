@@ -1,5 +1,5 @@
 import random
-random.seed(42) 
+random.seed(2) 
 
 class Task:
     """Each task has cpu, memory, storage resource capacities AND duration."""
@@ -21,9 +21,9 @@ class Task:
         for i in range(num_models):
             
             # randomize attributes
-            c_cpu = random.randint(1, 100)
-            c_memory = random.uniform(8, 128)
-            c_storage = random.uniform(5, 8000)
+            c_cpu = random.randint(150, 300)
+            c_memory = random.uniform(128, 256)
+            c_storage = random.uniform(16000, 24000)
             duration = random.uniform(1, 2000) 
             
              # task initialized and added to list of Tasks
