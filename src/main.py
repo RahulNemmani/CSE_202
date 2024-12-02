@@ -10,12 +10,12 @@ from task_scheduler import *
 # alpha, beta, rho, Q, E, tasks, servers, phermones
 # E, phermones are matrices (len(tasks) * len(servers)) or it's transpose
 # tasks and servers are instances of the task and server in models
-alpha = 1
-beta = 0
+alpha = 0
+beta = 1
 rho = 0.0
 Q = 10000
 ants = 35
-epochs = 10
+epochs = 150
 n = 40 # num tasks
 m = 5 # num servers
 E = [[random.uniform(10, 100) for server in range(m)] for task in range(n)]

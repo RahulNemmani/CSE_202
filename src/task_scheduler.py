@@ -38,7 +38,7 @@ def heuristic(server, task): # will be used in calculating server probability
     storage_ratio = server.storage / max(task.storage, 1)
     
     # Weighted heuristic based on importance of resources, will make it more likely to assign tasks to larger servers
-    return 0.4 * cpu_ratio + 0.4 * memory_ratio + 0.2 * storage_ratio
+    return (0.4 * cpu_ratio + 0.4 * memory_ratio + 0.2 * storage_ratio) * 5
 
 def server_probability_distribution(phermones, alpha, beta, servers, tasks, task_index): # use the above heuristic and phermone matrix
     probabilities = []
@@ -129,6 +129,7 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
         local_best_cost = float('inf')
 
         for a in range(ants):
+            alpha += 0.05
             solution = [[] for _ in range(m)]
 
             for task_index in range(len(tasks)):
@@ -148,7 +149,7 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
                     else:
                         phermones[t][s] += Q / cost
             solutions.append([cost, solution])
-            print(cost)
+            # print(cost)
 
         for s in range(len(solution)):
             for t in local_best_solution[s]:
