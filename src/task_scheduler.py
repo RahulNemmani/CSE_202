@@ -25,7 +25,8 @@ def getCost(solution, tasks, servers):
         for task_index in solution[server_index]:
             currTasks.append(tasks[task_index])
         time_taken = max(time_taken, makespan(currTasks, currServer))
-    print("time taken (Makespan) - ", time_taken)
+    # print(solution)
+    # print("time taken (Makespan) - ", time_taken)
     for i in range(len(tasks)):
         tasks[i].duration = temp[i] 
     return 3 * time_taken + 2 * load_imbalance(solution, tasks, servers) # weighted sum
@@ -114,12 +115,15 @@ def makespan (currTasks, currServer):
 
     return totalDuration
 
-def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones):
+def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, reference_cost):
 
     global_best_solution = []
     global_best_cost = float('inf')
 
     for e in range(epochs):
+        # for row in phermones:
+        #     print(row)
+        #     print("---------------------------------------")
         solutions = []
         local_best_solution = []
         local_best_cost = float('inf')
@@ -139,8 +143,12 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
 
             for s in range(len(solution)):
                 for t in solution[s]:
-                    phermones[t][s] += Q / cost
+                    if cost > reference_cost:
+                        phermones[t][s] *= 1
+                    else:
+                        phermones[t][s] += Q / cost
             solutions.append([cost, solution])
+            print(cost)
 
         for s in range(len(solution)):
             for t in local_best_solution[s]:
@@ -150,7 +158,7 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
             global_best_cost = local_best_cost
             global_best_solution = local_best_solution
         print(global_best_cost)
-    return global_best_solution
+    return global_best_cost
     
 
 def Random_Scheduler(tasks, servers): # random task allottment for baseline comparsion

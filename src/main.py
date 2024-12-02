@@ -11,15 +11,15 @@ from task_scheduler import *
 # E, phermones are matrices (len(tasks) * len(servers)) or it's transpose
 # tasks and servers are instances of the task and server in models
 alpha = 1
-beta = 1
-rho = 0.3
-Q = 100
-ants = 5
-epochs = 50
-n = 10 # num tasks
-m = 8 # num servers
+beta = 0
+rho = 0.0
+Q = 10000
+ants = 35
+epochs = 10
+n = 40 # num tasks
+m = 5 # num servers
 E = [[random.uniform(10, 100) for server in range(m)] for task in range(n)]
-phermones = [[0.5 for server in range(m)] for task in range(n)]
+phermones = [[20 for server in range(m)] for task in range(n)]
 # TODO : Shriniwas - instantiate all of the above constants and decide their values (which we will tweak)
 # Shriniwas - write thr ACO scheduler
 
@@ -36,17 +36,19 @@ from models.task import Task
 from task_scheduler import Random_Scheduler
 
 def main ():
-    allTasks = Task.initTasks(10)
-    allServers = Server.initServers(10)
+    allTasks = Task.initTasks(n)
+    allServers = Server.initServers(m)
 
     randomScheduler = Random_Scheduler(allTasks, allServers)
     print("RUNNING THE RANDOM SCHEDULER - ")
-    print("time taken by the random scheduler - ", randomScheduler)
+    print("cost of the random scheduler - ", randomScheduler)
 
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)
     print("RUNNING THE ACO SCHEDULER")
-    print(ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones))
+    print("cost of the ACO scheduler - ", ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler))
+    print("cost of the random scheduler - ", randomScheduler)
+    print([task.duration for task in tasks])
 
 
 if __name__ == "__main__":
