@@ -17,6 +17,7 @@ def load_imbalance(solution, tasks, servers):
 
 
 def getCost(solution, tasks, servers):
+    temp = [tasks[i].duration for i in range(len(tasks))]
     time_taken = -float('inf')
     for server_index in range(len(solution)):
         currServer = servers[server_index]
@@ -25,6 +26,8 @@ def getCost(solution, tasks, servers):
             currTasks.append(tasks[task_index])
         time_taken = max(time_taken, makespan(currTasks, currServer))
     print("time taken (Makespan) - ", time_taken)
+    for i in range(len(tasks)):
+        tasks[i].duration = temp[i] 
     return 3 * time_taken + 2 * load_imbalance(solution, tasks, servers) # weighted sum
     
 
