@@ -1,0 +1,432 @@
+,Function,Test for,Inputs (pseudo),Expectation,Output,Meets expectation
+,makespan,"- can handle one task
+- every attribute lowest setting","num_tasks = 1
+task.duration = 1
+task.cpu = 1
+task.memory = 8
+task.storage = 5
+server.cpu = 300
+server.memory = 400
+server.storage = 24000",1 (duration of task),1,TRUE
+,,"- can handle one task
+- task highest, server lowest constraints","num_tasks = 1
+task.duration = 2000
+task.cpu = 100
+task.memory = 128
+task.storage = 8000
+server.cpu = 300
+server.memory = 400
+server.storage = 24000",2000 (duration of task),2000,TRUE
+,,- can handle no task,"num_tasks = 0
+task.duration = []
+task.cpu = []
+task.memory = []
+task.storage = []
+server.cpu = 300
+server.memory = 400
+server.storage = 24000",0 (no duration),0,TRUE
+,,"- all tasks can be done in parallel, performs them in parallel","num_tasks = 4
+tasks.duration = [2000, 250, 100, 270]
+tasks.cpu = [100, 50, 1, 20]
+tasks.memory = [100, 20, 150, 25]
+tasks.storage = [1000, 250, 150, 200]
+server.cpu = 300
+server.memory = 400
+server.storage = 24000",2000 (length of longest task),2000,TRUE
+,,"- all tasks can be done in parallel, all same duration","num_tasks = 4
+tasks.duration = [100,100,100,100]
+tasks.cpu = [100, 50, 1, 20]
+tasks.memory = [100, 20, 150, 25]
+tasks.storage = [1000, 250, 150, 200]
+server.cpu = 300
+server.memory = 400
+server.storage = 24000",100 (length of one task),100,TRUE
+,,"- some tasks can't be done in parallel, performs them sequentially","num_tasks = 4
+tasks.duration = [100,100,100,100]
+tasks.cpu = [100,100,100,100]
+tasks.memory = [128, 128, 128, 128]
+tasks.storage = [8000, 8000, 8000, 8000]
+server.cpu = 300
+server.memory = 400
+server.storage = 24000",200 (length of longest task in first set (100) + length of longest in second (100)),200,TRUE
+,,"- works with random assignment of attributes
+- includes new task that originally did not fit constraints once a task is done
+- that is, does not wait until all tasks are done to start a new one when resources are available
+- new task duration within the original max duration","num_tasks = 7
+(initTask and initServer randomly assigned:)
+
+tasks.duration = [1695.1412383285722, 919.3903344640132, 1104.5292219151809, 1155.1269383682672, 1546.363613236595, 760.8723238532931, 740.9917532666484]
+tasks.cpu = [14, 78, 16, 81, 91, 11, 59]
+tasks.memory = [19.12950120561775, 39.74250406664157, 124.77389167752447, 82.22237028370952, 16.34661785884891, 110.63812652181763, 84.28213331172802]
+tasks.storage = [778.2474327835448, 352.386291170162, 3031.382345780786, 6894.346667984664, 5291.800231948842, 6932.536915708381, 2921.8332708658236]
+server.cpu = 381
+server.memory = 412.4690796345562
+server.storage = 29932.403998078662","if incorrect:
+
+set 1: t1-t6 = 1695.141238
+
+set 2: t7 = 740.991753266648
+
+output = 2436.132992",1695.141238,TRUE
+,,"- new task duration is longer than the original max duration
+- the new duration should not be the max but the longest + the time it took to finish the ones previous to it","num_tasks = 8
+(initTask and initServer randomly assigned:)
+
+tasks.duration = [1695.1412383285722, 919.3903344640132, 1104.5292219151809, 1155.1269383682672, 1546.363613236595, 760.8723238532931, 740.9917532666484, 1367.4117834077979]
+tasks.cpu = [14, 78, 16, 81, 91, 11, 59, 27]
+tasks.memory = [19.12950120561775, 39.74250406664157, 124.77389167752447, 82.22237028370952, 16.34661785884891, 110.63812652181763, 84.28213331172802, 88.4210209253232]
+tasks.storage = [778.2474327835448, 352.386291170162, 3031.382345780786, 6894.346667984664, 5291.800231948842, 6932.536915708381, 2921.8332708658236, 5616.053406101118]
+server.cpu = 381
+server.memory = 412.4690796345562
+server.storage = 29932.403998078662","if incorrect and new duration is max: = 1367.41178340779
+
+if correct: task that needs to finish t3.duration = 1104.52922191518 + t8 = 2471.94100532297
+
+(before t3, the server would have been overloaded adding t8)",2471.941005,TRUE
+,,"- consistent across different seeds
+(previously set to 42)","random.seed(2) 
+num_tasks = 8
+(initTask and initServer randomly assigned:)
+
+tasks.duration = [1020.8232204164375, 364.50515014946563, 1813.2807061452245, 724.4108775405001, 1430.5866455766695, 558.9253836031205, 708.4944855325631, 1135.8424357700683]
+tasks.cpu = [4, 47, 58, 98, 58, 60, 64, 59]
+tasks.memory = [29.206397704907882, 127.84202818310624, 103.61119057059675, 51.71066283263054, 27.342158396482265, 86.58931737871978, 68.10092751567859, 115.9640706507951]
+tasks.storage = [1392.8420863516299, 5397.465180280232, 5876.541526692352, 4749.91704563444, 6033.262552856718, 2002.964633127013, 6653.038295885539, 3690.792258228693]
+server.cpu = 307
+server.memory = 410.2574961893682
+server.storage = 26888.45979186886","parallel: t1-t5 = 1813.2807061452245
+
+curr: t6-t8
+
+t6 and t7 < 1813.2807061452245
+
+t8 starts after t2 and t6
+
+=2059.27296952265",2059.27297,TRUE
+,,- one task has zero duration,same as previous except t8.duration = 0,"t8 < 1813.2807061452245
+= 1813.2807061452245",1813.280706,TRUE
+,,,,,,
+,,,,,,
+,load_imbalance,- each server has one task,"n=4, m=4
+solution = [[0], [1], [2], [3]] 
+tasks.cpu = [28, 92, 76, 21]
+servers.cpu = [381, 331, 386, 375]","average imbalance of 0.1510819062, 
+total 0.3453459974",0.3453459974,TRUE
+,,"- more tasks than servers
+- each server has task","n=8, m=4
+solution = [[0, 1], [2, 3], [4, 5], [6, 7]] 
+tasks.cpu = [28, 92, 76, 21, 98, 45, 69, 38]
+servers.cpu = [381, 331, 386, 375]","average 0.315952911, 
+total 0.1090268205",0.1090268205,TRUE
+,,- only one of multiple servers has tasks,"n=4, m=4
+solution = [[0, 1, 2, 3], [], [], []] ","average 0.1423884514, total 0.8543307087",0.8543307087,TRUE
+,,- imbalance greater than one,"n=8, m=4
+solution = [[0, 1, 2, 3, 4, 5, 6, 7], [], [], []] ",1.838582677,1.838582677,TRUE
+,,- no servers have tasks,"n=0, m=4
+solution = [[], [], [], []] ",0,0,TRUE
+,,- more servers than tasks,"n=4, m=8
+solution = [[0], [], [1], [], [2], [], [3], []] 
+tasks.cpu = [21, 98, 45, 69]
+servers.cpu = [381, 331, 386, 375, 327, 371, 369, 335]",0.6817771163,0.6817771163,TRUE
+,,- perfectly balanced,"n=4, m=4
+solution =[[0], [1], [2], [3]] 
+tasks.cpu = [100, 100, 100, 100]
+servers.cpu = [300, 300, 300, 300]",0,0,TRUE
+,,- correct answer across different seeds,"n=4,m=4
+random.seed(2) 
+solution=[[0], [1], [2], [3]] 
+tasks.cpu = [56, 66, 35, 41]
+servers.cpu = [307, 321, 339, 304]",0.1499046413,0.1499046413,TRUE
+,,,,,,
+,,,,,,
+,getCost,"- load_imbalance is 0
+- answer 3 * makespan","durations = [1122.9288808142874, 441.6608034593527, 1517.8559268924048, 311.8035201237513]
+solution = [[0], [1], [2], [3]] 
+tasks.cpu = [100, 100, 100, 100]
+servers.cpu = [300, 300, 300, 300]","longest is 1517.8559268924048, 3x = 4553.567781 ",4553.567781,TRUE
+,,"- duration is 0
+- answer 2 * imbalance","durations = [0, 0, 0, 0]
+load_imbalance = 0.3453459973968981",2 * 0.3453459973968981 = 0.6906919947937962,0.6906919948,TRUE
+,,"- neither is 0, does the calculation correctly ","time_taken = 1768.2450685052559
+load_imbalance = 0.14990464127753905",5305.035015,5305.035015,TRUE
+,,,,,,
+,,,,,,
+,heuristic,"- higher heuristic to smaller task, same server 
+- manipulate cpu","server.cpu = 300 
+task.cpu = 100
+
+VS
+
+server.cpu = 300 
+task.cpu = 1",h1<h2,"h1 = 3.975672269372866 
+<
+h2 = 122.77567226937286",TRUE
+,,"- higher heuristic to bigger server, same task
+- manipulate cpu","server.cpu = 300 
+task.cpu = 1
+
+VS
+
+server.cpu = 400 
+task.cpu = 1",h1<h2,"h1 =122.77567226937286
+<
+h2 = 162.77567226937288",TRUE
+,,"- still true for biggest tasks 
+- manipulate cpu","server.cpu = 300 
+task.cpu = 100
+
+VS
+
+server.cpu = 400 
+task.cpu = 100",h1<h2,"h1 = 3.975672269372866
+<
+h2 = 4.375672269372867",TRUE
+,,"- higher heuristic to smaller task, same server
+- manipulate memory","server.memory = 400 
+task.memory = 128
+
+VS
+
+server.memory = 400 
+task.memory = 8",h1<h2,"h1 = 3.0500000000000003
+<
+h2 = 21.8",TRUE
+,,"- higher heuristic to bigger server, same task 
+- manipulate memory","server.memory = 400 
+task.memory = 10
+
+VS
+
+server.memory = 512 
+task.memory = 10",h1<h2,"h1 =17.8
+<
+h2 = 22.280000000000005",TRUE
+,,"- higher heuristic to smaller task, same server
+- manipulate storage","server.storage = 24000 
+task.storage = 8000
+
+VS
+
+server.storage = 24000 
+task.storage = 5",h1<h2,"h1 = 3.0500000000000003
+<
+h2 = 962.45",TRUE
+,,"- higher heuristic to bigger server, same task 
+- manipulate storage","server.storage = 24000 
+task.storage = 1000
+
+VS
+
+server.storage = 32000 
+task.storage = 1000",h1<h2,"h1 = 7.250000000000001
+<
+h2 = 8.850000000000001",TRUE
+,,- manipulating storage has less of an effect than cpu (increasing by the same amount),"server.cpu = 300
+server.storage = 24000
+
+VS
+
+server.cpu = 400
+server.storage = 24000
+
+VS
+
+server.cpu = 300
+server.storage = 24100",(h2-h1) > (h3-h1),"h2 - h1 = 0.4
+>
+h3 - h1 = 0.02",TRUE
+,,- manipulating storage has less of an effect than memory,"server.memory = 400
+server.storage = 24000
+
+VS
+
+server.memory = 500
+server.storage = 24000
+
+VS
+
+server.memory = 400
+server.storage = 24100",(h2-h1) > (h3-h1),"h2 - h1 = 0.3125
+>
+h3 - h1 = 0.02",TRUE
+,,,,,,
+,,,,,,
+,server_probability_distribution,- adds up to 1,"phermones = [[0.5 for server in range(m)] for task in range(n)]
+alpha = 1
+beta = 1
+n = 4
+m = 4
+servers = Server.initServers(m)
+tasks = Task.initTasks(n)
+task_index = 0",sum(output) == 1,sum(output) == 1,TRUE
+,,- probabilities are balanced when same heuristic and phermones,"all servers' cpu, memory storage set to same value","[0.25, 0.25, 0.25, 0.25]","[0.25, 0.25, 0.25, 0.25]",TRUE
+,,- pherm set to 0 has no effect,phermones = [[0 for server in range(m)] for task in range(n)],"[0.25, 0.25, 0.25, 0.25]","[0.25, 0.25, 0.25, 0.25]",TRUE
+,,- pherm all but one set to 0 skews distribution to that one,"phermones[0] = [0,0,0,1]
+resource capacities NOT manually set",last server in distribution higher prob than others,"[0.2273332715429176, 0.2510328981154822, 0.2399729024859463, 0.281660927855654]",TRUE
+,,- above still true when choose other server,"phermones[0] = [1,0,0,0]",first server in distribution higher prob than others,"[0.27308791093044704, 0.2510328981154822, 0.2399729024859463, 0.2359062884681246]",TRUE
+,,- server with higher heuristic has distribution skewed towards it,"for s in servers:
+h = 4.0 phermone_level = 0.5
+h = 3.0500000000000003 phermone_level = 0.5
+h = 3.0500000000000003 phermone_level = 0.5
+h = 3.0500000000000003 phermone_level = 0.5",first server in distribution higher prob than others,"[0.297029702970297, 0.23432343234323433, 0.23432343234323433, 0.23432343234323433]",TRUE
+,,- h and pherm have effect in combination,"h = 4.0 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 1",first and last both favored,"[0.2826855123674911, 0.215547703180212, 0.215547703180212, 0.2862190812720848]",TRUE
+,,- alpha > beta increases effect of pherm,"alpha = 10
+beta = 1
+
+h = 4.0 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 1","last most favored, then first","[0.17278617710583152, 0.13174946004319654, 0.13174946004319654, 0.5637149028077754]",TRUE
+,,- beta > alpha increases effect of h,"alpha = 1
+beta = 5
+
+h = 4.0 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 0
+h = 3.0500000000000003 phermone_level = 1","first most favored, then last","[0.299625468164794, 0.22846441947565546, 0.22846441947565546, 0.24344569288389514]",TRUE
+,,- sensitive to task index (not same numbers every time),"task_index = 0
+VS
+task_index = 3",output1 != output2,"output1 = [0.23845498869233564, 0.26282360152029066, 0.25145140750913964, 0.247270002278234]
+
+output2 = [0.24113125434473415, 0.2621005108024019, 0.2531514071413828, 0.24361682771148124]",TRUE
+,,,,,,
+,,,,,,
+,assign,"- when prob distribution is balanced, assigns randomly","prob_distr = [0.25, 0.25, 0.25, 0.25]
+solution = [[], [], [], []]
+task = 0
+loop through random.seed(i) 100 times and count how many times one solution appears",number of appearance / range of loop ~0.25,0.28,TRUE
+,,"- when distribution skewed, assigns to that server","prob_distr = [1, 0, 0, 0]
+solution = [[], [], [], []]
+task = 0
+loop through random.seed(i) 100 times and count how many times [[0], [], [], []] occurs",number of appearance / range of loop = 1,1,TRUE
+,,"- when there are multiple servers with highest probability, randomly chooses between them","prob_distr = [0.5, 0, 0, 0.5]
+solution = [[], [], [], []]
+task = 0
+loop through random.seed(i) 100 times and count how many times [[0], [], [], []] occurs",number of appearance / range of loop ~0.5,0.58,TRUE
+,,,,,,
+,,,,,,
+,getParallelTasks,"- all tasks can be assigned in parallel, assigns them in parallel","n=4
+manually assigned all task constraints summed to be within server constraint","parallelTasks == tasksInServer
+
+currTasks == []","True, True",TRUE
+,,"- task can't be assigned in parallel, assigned to currTask instead","n=4
+server 3x each task constraint, 
+all tasks max values","parallelTasks first 3, currTasks last one","True, True",TRUE
+,,- when only cpu is overloaded,"n=5
+server constraints all minimum values
+every task constraint BUT cpu minimum values
+task cpu's all max values","parallelTasks first 4, currTasks last 2","True, True",TRUE
+,,- when only memory is overloaded,"n=5
+server constraints all minimum values
+every task constraint BUT memory minimum values
+tasks.memory all max values","parallelTasks first 4, currTasks last 2","True, True",TRUE
+,,- when only storage is overloaded,"n=5
+server constraints all minimum values
+every task constraint BUT storage minimum values
+tasks.storage all max values","parallelTasks first 4, currTasks last 2","True, True",TRUE
+,,"- minDuration returns minimum in parallelTasks, not minimum in all tasks","n=5
+last two tasks not in parallelTasks
+durations = [1720.627961372169, 890.2635232629813, 728.6648412668914, 1768.2450685052559, 48.69230020242361]","if incorrect == 48.69230020242361
+
+if correct == 728.6648412668914",728.6648413,TRUE
+,,"- server resources get updated correctly
+- only those in parallelTasks subtracted from the originals","n=5
+random.seed(2)
+firstTask = currTasks.pop(0)
+parallelTasks.append(firstTask)
+
+above yields following in what gets inputted:
+CURR TASKS:
+cpu: [66, 35, 41, 22]
+memory: [121.92745677118923, 116.14493569963363, 116.93001322151564, 75.26124332317987]
+storage: [4355.69549419742, 6968.9085821019235, 3391.769701725667, 1892.8066398849214]
+
+SERVER:
+cpu: 251 
+storage: 20458.122593861146 
+memory: 325.640935616805","server.cpu - sum(task.cpu for task in parallelTasks) == 128
+
+server.memory - sum(task.memory for task in parallelTasks) == 7240.711877676881 
+
+server.storage - sum(task.storage for task in parallelTasks) == 12.307299822802278","True, True, True",TRUE
+,,,,,,
+,,,,,,
+,Random_Scheduler,- truly random," n = 5, m = 4
+ servers = Server.initServers(m)
+ tasks = Task.initTasks(n)","after running with 100 different seeds, near zero probability of returning the same solution",0,TRUE
+,,- handles no tasks,"n=0, m=4","solution: [[], [], [], []]"," [[], [], [], []]",TRUE
+,,- raises error for no servers,"n=0, m=0",ERROR,ERROR,TRUE
+,,"- can assign multiple tasks to one server
+- can assign no tasks to a server","n = 4, m = 4
+random.seed(2) ",an example of both,"[[], [0, 1, 2, 3], [], []]",TRUE
+,,"- same as above, different seed",random.seed(200),an example of both,"[[], [0, 3], [], [1, 2]]",TRUE
+,,"- one server, mutiple tasks","n=4, m=1","[[0, 1, 2, 3]]","[[0, 1, 2, 3]]",TRUE
+,,"- random behavior when one task, multiple servers","n=1, m=4","probability near 0.25 of returning [[0], [], [], []] over 200 seeds",0.275,TRUE
+,,- maxTime is correct,"n=5, m=4
+random.seed(2) 
+
+YIELDS:
+solution: [[], [1, 2, 4], [0, 3], []]
+durations: [1720.627961372169, 890.2635232629813, 728.6648412668914, 1768.2450685052559, 48.69230020242361]","server1: 0
+server2: 890.2635232629813
+server3: 1768.2450685052559
+server4: 0
+
+output == 1768.2450685052559",1768.245069,TRUE
+,,- does not change task or server attributes,"n=4,m=4",attributes before running the function == attributes after running the function,TRUE,TRUE
+,,,,,,
+,,,,,,
+,ACO_Scheduler,- handles zero tasks,"n=0, m=4","[[], [], [], []]","[[], [], [], []]",TRUE
+,,- raises error for no servers,"n=0, m=0",ERROR,ERROR,TRUE
+,,"- can assign multiple tasks to one server
+- can assign no tasks to a server","n = 5, m = 5
+random.seed(42) ",an example of both,"[[1, 3], [4], [0], [2], []]",TRUE
+,,"- one server, mutiple tasks","n=4, m=1","[[0, 1, 2, 3]]","[[0, 1, 2, 3]]",TRUE
+,,- time takes lessens in 1 epoch,"epochs = 1
+ants = 5
+n=4, m=1",makespan for a in range(ants) decreases with each iteration,"a1 -  1353.7222753583997
+a2 -  681.2680773549347
+a3 -  300.17191555228464
+a4 -  129.943162664875
+a5 -  40.63865602783072",TRUE
+,,- time takes lessens over multiple epochs,"epochs = 2
+ants = 5
+n=4, m=1",makespan continues to decrease,"a1 -  1353.7222753583997
+a2 -  681.2680773549347
+a3-  300.17191555228464
+a4 -  129.943162664875
+a5 -  40.63865602783072
+
+EPOCH 2
+a1 -  19.9259856288719
+a2 -  8.894432510964563
+a3 -  7.029824549823033
+a4 -  5.679388712967182
+a5 -  4.762571840902197",TRUE
+,,- global cost decreases over multiple epochs,"epochs = 2
+ants = 5
+n=4, m=1",global_best_cost in epoch 1 > global_best_cost in epoch 2,"121.91596808349216 
+> 14.287715522706591",TRUE
+,,- greater epoch leads to stabilization,"n=4, m=4, changing epochs","after certain number of epochs, solution remains the same","after epoch 254, 
+solution does not change",TRUE
+,,- does not change task or server attributes,"n=4,m=4",attributes before running the function == attributes after running the function,TRUE,TRUE
+,,-works alongside Random_Scheduler (when both called),"n=4,m=4
+epochs = 200 
+random.seed(42) ",ACO's solution without running random scheduler is same as ACO's solution when running it before it,"[[2], [0, 3], [1], []] == [[2], [0, 3], [1], []]",TRUE
+,,- a different solution is explored each time (local solution is not consistent),"epochs = 2 
+n = 4, m = 4",each ant has different local solution,TRUE,TRUE
+,,- local solution updates when cost is lower,same as above,"if cost < local best, updates",TRUE,TRUE
+,,- global solution corresponds to lowest cost ever found,same as above,global_best_cost == lowest cost,TRUE,
+,,- phermones fade each time step,"rho = 0.3
+phermones = [[0.5 for server in range(m)] for task in range(n)]
+phermones[0] = [1,0,0,0]",phermones first update should be 1- rho,"after first one:
+[[0.7, 0.0, 0.0, 0.0], [0.35, 0.35, 0.35, 0.35], [0.35, 0.35, 0.35, 0.35], [0.35, 0.35, 0.35, 0.35]]",TRUE
+,,- phermones reinforced based on Q and cost,"Q = 4000
+cost = 7491.93722931644",1.233907303,1.233907303,TRUE
+,,- phermones reinforced more if cost is lower,"cost1 = 7491.93722931644
+cost2 = 5305.61877694433",degree of reinforcement more for lower cost,"difference of increase for cost1: 0.533907303
+<
+difference for cost2: 0.7539177178",TRUE
