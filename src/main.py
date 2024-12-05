@@ -35,6 +35,10 @@ from models.server import Server
 from models.task import Task
 from task_scheduler import Random_Scheduler
 
+from utils import *
+import matplotlib.pyplot as plt
+import numpy as np
+
 def main ():
     allTasks = Task.initTasks(n)
     allServers = Server.initServers(m)
@@ -45,11 +49,21 @@ def main ():
 
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)
+    global_best_cost, global_best_cost, epoch_list, aco_costs, aco_load_imbalance_list, aco_makespan_list = ACO_Scheduler(
+        alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler
+    )
+
     print("RUNNING THE ACO SCHEDULER")
     print("cost of the ACO scheduler - ", ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler))
     print("cost of the random scheduler - ", randomScheduler)
     print([task.duration for task in tasks])
 
+    print(servers)
+
+    histo_plot(tasks)
+    plot_resource_requirements(tasks)
+    plot_server_capacities(servers)
+    plot_decay_function(epochs, costs_aco, costs_random, title)
 
 if __name__ == "__main__":
     main()

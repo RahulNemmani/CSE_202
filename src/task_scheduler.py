@@ -120,6 +120,11 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
     global_best_solution = []
     global_best_cost = float('inf')
 
+    epoch_list = []
+    aco_costs = []
+    aco_load_imbalance_list = []
+    aco_makespan_list = []
+
     for e in range(epochs):
         # for row in phermones:
         #     print(row)
@@ -136,10 +141,15 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
                 probabilities = server_probability_distribution(phermones, alpha, beta, servers, tasks, task_index)
                 assign(task_index, solution, probabilities)
             cost = getCost(solution, tasks, servers)
+            load_imb = load_imbalance(solution, tasks, servers)
+            makespan_value = max(
+                makespan([tasks[i] for i in sublist], servers[idx]) for idx, sublist in enumerate(solution))
 
             if cost < local_best_cost:
                 local_best_cost = cost
                 local_best_solution = solution
+                local_best_load_imbalance = load_imbalance
+                local_best_makespan = makespan_value
             phermones = [[phermone * (1 - rho) for phermone in row] for row in phermones]
 
             for s in range(len(solution)):
@@ -158,8 +168,12 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
         if local_best_cost < global_best_cost:
             global_best_cost = local_best_cost
             global_best_solution = local_best_solution
+        epoch_list.append(e)
+        aco_costs.append(local_best_cost)
+        aco_load_imbalance_list.append(local_best_load_imbalance)
+        aco_makespan_list.append(local_best_makespan)
         print(global_best_cost)
-    return global_best_cost
+    return global_best_cost,global_best_cost, epoch_list, aco_costs, aco_load_imbalance_list, aco_makespan_list
     
 
 def Random_Scheduler(tasks, servers): # random task allottment for baseline comparsion
