@@ -36,8 +36,7 @@ from models.task import Task
 from task_scheduler import Random_Scheduler
 
 from utils import *
-import matplotlib.pyplot as plt
-import numpy as np
+
 
 def main ():
     allTasks = Task.initTasks(n)
@@ -50,21 +49,25 @@ def main ():
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)
 
-    _, _, epoch_list, aco_costs, _, _ = ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers,
-                                                      phermones, randomScheduler)
-    costs_random = Random_Scheduler(tasks, servers)
+
 
     print("RUNNING THE ACO SCHEDULER")
     print("cost of the ACO scheduler - ", ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler))
     print("cost of the random scheduler - ", randomScheduler)
     print([task.duration for task in tasks])
 
-    print(servers)
+    global_best_cost, final_pheromones, initial_pheromones,solution_diversity_list,aco_costs, aco_load_imbalance_list = ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler)
 
-    histo_plot(tasks)
-    plot_resource_requirements(tasks)
-    plot_server_capacities(servers)
-    plot_decay_function(epoch_list, aco_costs, costs_random, "Total Cost Decay")
+    histo_plot_task_dur(tasks)
+    plot_task_resource_requirements(tasks)
+
+    server_capacities(servers)
+    server_capacities_two_feat(servers)
+    # plot_gantt_chart_for_server(tasks)
+
+    plot_pheromone_heatmaps(initial_pheromones, final_pheromones)
+    plot_decay_functions(epochs, aco_costs, randomScheduler)
+    plot_solution_diversity(epochs, solution_diversity_list)
 
 if __name__ == "__main__":
     main()

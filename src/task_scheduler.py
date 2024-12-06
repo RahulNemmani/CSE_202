@@ -115,6 +115,15 @@ def makespan (currTasks, currServer):
 
     return totalDuration
 
+def calculate_solution_diversity(solution1, solution2):
+    """
+    Calculates the Hamming distance between two solutions.
+    """
+    diversity = 0
+    for server1, server2 in zip(solution1, solution2):
+        diversity += len(set(server1).symmetric_difference(set(server2)))
+    return diversity
+
 def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, reference_cost):
 
     global_best_solution = []
@@ -124,6 +133,11 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
     aco_costs = []
     aco_load_imbalance_list = []
     aco_makespan_list = []
+    solution_diversity_list = []
+
+    previous_solution = None
+
+    initial_pheromones = [row[:] for row in phermones]
 
     for e in range(epochs):
         # for row in phermones:
@@ -140,6 +154,7 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
             for task_index in range(len(tasks)):
                 probabilities = server_probability_distribution(phermones, alpha, beta, servers, tasks, task_index)
                 assign(task_index, solution, probabilities)
+
             cost = getCost(solution, tasks, servers)
             load_imb = load_imbalance(solution, tasks, servers)
             makespan_value = max(
@@ -148,9 +163,22 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
             if cost < local_best_cost:
                 local_best_cost = cost
                 local_best_solution = solution
-                local_best_load_imbalance = load_imbalance
+                local_best_load_imbalance = load_imb
                 local_best_makespan = makespan_value
+
+            solutions.append([cost, solution])
+
+
             phermones = [[phermone * (1 - rho) for phermone in row] for row in phermones]
+
+            for s in range(len(solution)):
+                for t in solution[s]:
+                    if cost > reference_cost:
+                        phermones[t][s] *= 1
+                    else:
+                        phermones[t][s] += Q / cost
+
+            solutions.append([cost, solution])
 
             for s in range(len(solution)):
                 for t in solution[s]:
@@ -161,6 +189,8 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
             solutions.append([cost, solution])
             # print(cost)
 
+        aco_load_imbalance_list.append(local_best_load_imbalance)
+
         for s in range(len(solution)):
             for t in local_best_solution[s]:
                 phermones[t][s] += Q / local_best_cost
@@ -168,12 +198,20 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
         if local_best_cost < global_best_cost:
             global_best_cost = local_best_cost
             global_best_solution = local_best_solution
+
+        if previous_solution is not None:
+            diversity = calculate_solution_diversity(global_best_solution, previous_solution)
+            solution_diversity_list.append(diversity)
+        previous_solution = global_best_solution
+
         epoch_list.append(e)
         aco_costs.append(local_best_cost)
         aco_load_imbalance_list.append(local_best_load_imbalance)
         aco_makespan_list.append(local_best_makespan)
         print(global_best_cost)
-    return global_best_cost,global_best_cost, epoch_list, aco_costs, aco_load_imbalance_list, aco_makespan_list
+
+        final_pheromones = [row[:] for row in phermones]
+    return global_best_cost, final_pheromones, initial_pheromones,solution_diversity_list,aco_costs, aco_load_imbalance_list
     
 
 def Random_Scheduler(tasks, servers): # random task allottment for baseline comparsion
