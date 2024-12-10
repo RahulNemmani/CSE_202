@@ -1,8 +1,7 @@
 import random
 import math
 
-startTimes = []
-endTimes = []
+
 def load_imbalance(solution, tasks, servers):
     loads = []
     for i in range(len(solution)):
@@ -21,16 +20,24 @@ def load_imbalance(solution, tasks, servers):
 def getCost(solution, tasks, servers):
     temp = [tasks[i].duration for i in range(len(tasks))]
     time_taken = -float('inf')
+    
     for server_index in range(len(solution)):
         currServer = servers[server_index]
         currTasks = []
+        startTimes = {}
+        endTimes = {}
         for task_index in solution[server_index]:
             currTasks.append(tasks[task_index])
-        time_taken = max(time_taken, makespan(currTasks, currServer))
-    print("time taken (Makespan) - ", time_taken)
+        for i in range(len(currTasks)):
+            taskIndex = str(currTasks[i].index)
+            startTimes[taskIndex] = 0
+            endTimes[taskIndex] = 0
+        time_taken = max(time_taken, makespan(currTasks, currServer, startTimes, endTimes))
+    # print(solution)
+    # print("time taken (Makespan) - ", time_taken)
     for i in range(len(tasks)):
         tasks[i].duration = temp[i] 
-    return 3 * time_taken + 2 * load_imbalance(solution, tasks, servers) # weighted sum
+    return 3 * time_taken + 2 * load_imbalance(solution, tasks, servers), startTimes, endTimes # weighted sum
     
 
 def heuristic(server, task): # will be used in calculating server probability
@@ -39,7 +46,7 @@ def heuristic(server, task): # will be used in calculating server probability
     storage_ratio = server.storage / max(task.storage, 1)
     
     # Weighted heuristic based on importance of resources, will make it more likely to assign tasks to larger servers
-    return 0.4 * cpu_ratio + 0.4 * memory_ratio + 0.2 * storage_ratio
+    return (0.4 * cpu_ratio + 0.4 * memory_ratio + 0.2 * storage_ratio) * 5
 
 def server_probability_distribution(phermones, alpha, beta, servers, tasks, task_index): # use the above heuristic and phermone matrix
     probabilities = []
@@ -56,13 +63,14 @@ def assign(task, solution, probabilities):
     solution[server_index].append(task)
     return
 
-def getParallelTasks(currTasks, parallelTasks, serverCPU, serverMemory, serverStorage, totalDuration):
+def getParallelTasks(currTasks, parallelTasks, serverCPU, serverMemory, serverStorage, totalDuration, startTimes):
     minDuration = math.inf
-
+    #print("Len of currTasks ", len(currTasks))
     for i in range(len(currTasks)):         # Task 1 duration: 2 Task 2 duration 4: once task 1 is done even if task 2 is not done see if there is another task to add
         currTask = currTasks[i]
         if currTask.cpu < serverCPU and currTask.memory < serverMemory and currTask.storage < serverStorage:
-            startTimes[currTask.index] = totalDuration
+            taskIndex = str(currTask.index)
+            startTimes[taskIndex] = totalDuration
             parallelTasks.append(currTask)
             serverCPU -= currTask.cpu
             serverStorage -= currTask.storage
@@ -79,7 +87,7 @@ def getParallelTasks(currTasks, parallelTasks, serverCPU, serverMemory, serverSt
 
     return minDuration, parallelTasks, serverCPU, serverStorage, serverMemory, currTasks
 
-def makespan (currTasks, currServer):
+def makespan (currTasks, currServer, startTimes, endTimes):
     totalDuration = 0
 
     while len(currTasks) > 0:
@@ -90,10 +98,12 @@ def makespan (currTasks, currServer):
         serverStorage = currServer.storage - firstTask.storage
 
         parallelTasks = []
+        taskIndex = str(firstTask.index)
+        startTimes[taskIndex] = totalDuration
         parallelTasks.append(firstTask)
         while not len(parallelTasks) == 0:
             minTimeTask, parallelTasks, serverCPU, serverStorage, serverMemory, currTasks = getParallelTasks(currTasks, parallelTasks, 
-                                                                                                  serverCPU, serverMemory, serverStorage, totalDuration)
+                                                                                                  serverCPU, serverMemory, serverStorage, totalDuration, startTimes)
             
             for task in parallelTasks:
                 minTimeTask = min(minTimeTask, task.duration)
@@ -108,7 +118,8 @@ def makespan (currTasks, currServer):
                     serverCPU += task.cpu
                     serverMemory += task.memory
                     serverStorage += task.storage
-                    endTimes[task.index] = totalDuration
+                    endIndex = str(task.index)
+                    endTimes[endIndex] = totalDuration
                 else:
                     nonMinTasks.append(task)
             
@@ -118,23 +129,27 @@ def makespan (currTasks, currServer):
 
     return totalDuration
 
-def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones):
+def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, reference_cost):
 
     global_best_solution = []
     global_best_cost = float('inf')
 
     for e in range(epochs):
+        # for row in phermones:
+        #     print(row)
+        #     print("---------------------------------------")
         solutions = []
         local_best_solution = []
         local_best_cost = float('inf')
 
         for a in range(ants):
+            alpha += 0.05
             solution = [[] for _ in range(m)]
 
             for task_index in range(len(tasks)):
                 probabilities = server_probability_distribution(phermones, alpha, beta, servers, tasks, task_index)
                 assign(task_index, solution, probabilities)
-            cost = getCost(solution, tasks, servers)
+            cost, _, _ = getCost(solution, tasks, servers)
 
             if cost < local_best_cost:
                 local_best_cost = cost
@@ -143,8 +158,12 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
 
             for s in range(len(solution)):
                 for t in solution[s]:
-                    phermones[t][s] += Q / cost
+                    if cost > reference_cost:
+                        phermones[t][s] *= 1
+                    else:
+                        phermones[t][s] += Q / cost
             solutions.append([cost, solution])
+            # print(cost)
 
         for s in range(len(solution)):
             for t in local_best_solution[s]:
@@ -154,7 +173,7 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
             global_best_cost = local_best_cost
             global_best_solution = local_best_solution
         print(global_best_cost)
-    return global_best_solution
+    return global_best_cost
     
 
 def Random_Scheduler(tasks, servers): # random task allottment for baseline comparsion
@@ -181,9 +200,8 @@ def Random_Scheduler(tasks, servers): # random task allottment for baseline comp
             print("duration of this task ", s.duration)
         index += 1
     '''
-    for i in range(numServers):
-        startTimes.append(0)
-        endTimes.append(0)
-    totalCost = getCost(solution, tasks, servers)
+ 
+    
+    totalCost, startTimes, endTimes = getCost(solution, tasks, servers)
     print(totalCost)
     return totalCost, startTimes, endTimes

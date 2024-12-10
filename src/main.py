@@ -2,6 +2,8 @@ import random
 import models
 import sys
 import os
+import plotly.express as px
+import pandas as pd
 
 # Add the directory containing 'myclass.py' to sys.path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
@@ -10,16 +12,16 @@ from task_scheduler import *
 # alpha, beta, rho, Q, E, tasks, servers, phermones
 # E, phermones are matrices (len(tasks) * len(servers)) or it's transpose
 # tasks and servers are instances of the task and server in models
-alpha = 1
+alpha = 0
 beta = 1
-rho = 0.3
-Q = 100
-ants = 5
-epochs = 50
-n = 10 # num tasks
-m = 8 # num servers
+rho = 0.0
+Q = 10000
+ants = 35
+epochs = 150
+n = 40 # num tasks
+m = 5 # num servers
 E = [[random.uniform(10, 100) for server in range(m)] for task in range(n)]
-phermones = [[0.5 for server in range(m)] for task in range(n)]
+phermones = [[20 for server in range(m)] for task in range(n)]
 # TODO : Shriniwas - instantiate all of the above constants and decide their values (which we will tweak)
 # Shriniwas - write thr ACO scheduler
 
@@ -36,8 +38,8 @@ from models.task import Task
 from task_scheduler import Random_Scheduler
 
 def main ():
-    allTasks = Task.initTasks(10)
-    allServers = Server.initServers(10)
+    allTasks = Task.initTasks(n)
+    allServers = Server.initServers(m)
 
     randomScheduler, startTimes, endTimes = Random_Scheduler(allTasks, allServers)
     print("RUNNING THE RANDOM SCHEDULER - ")
@@ -48,7 +50,29 @@ def main ():
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)
     print("RUNNING THE ACO SCHEDULER")
-    print(ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones))
+    print("cost of the ACO scheduler - ", ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler))
+    print("cost of the random scheduler - ", randomScheduler)
+    print([task.duration for task in tasks])
+
+    taskIds = list(startTimes.keys())
+    
+    taskIds.sort()
+
+    sortedStartTimes = []
+    sortedEndTimes = []
+    for taskId in taskIds:
+        sortedStartTimes.append(startTimes[taskId])
+        sortedEndTimes.append(endTimes[taskId])
+
+    df = pd.DataFrame({
+        "Task": [f"Task {i}" for i in range(len(taskIds))],
+        "Start": sortedStartTimes,
+        "Finish": sortedEndTimes,
+    })
+
+    fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task", title="Project Gantt Chart")   # will have to change the timeline here
+    fig.update_yaxes(categoryorder="total ascending")  # Optional: Order tasks by start date
+    #fig.show()
 
 
 if __name__ == "__main__":
