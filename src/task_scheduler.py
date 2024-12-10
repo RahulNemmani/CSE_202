@@ -131,6 +131,8 @@ def makespan (currTasks, currServer, startTimes, endTimes):
 
 def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, reference_cost):
 
+    initialCostPrinted = False
+
     global_best_solution = []
     global_best_cost = float('inf')
 
@@ -149,7 +151,11 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
             for task_index in range(len(tasks)):
                 probabilities = server_probability_distribution(phermones, alpha, beta, servers, tasks, task_index)
                 assign(task_index, solution, probabilities)
+
             cost, _, _ = getCost(solution, tasks, servers)
+            if not initialCostPrinted:
+                print(cost)
+                initialCostPrinted = True
 
             if cost < local_best_cost:
                 local_best_cost = cost
