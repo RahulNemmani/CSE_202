@@ -1,6 +1,8 @@
 import random
 import math
 
+startTimes = []
+endTimes = []
 def load_imbalance(solution, tasks, servers):
     loads = []
     for i in range(len(solution)):
@@ -54,12 +56,13 @@ def assign(task, solution, probabilities):
     solution[server_index].append(task)
     return
 
-def getParallelTasks(currTasks, parallelTasks, serverCPU, serverMemory, serverStorage):
+def getParallelTasks(currTasks, parallelTasks, serverCPU, serverMemory, serverStorage, totalDuration):
     minDuration = math.inf
 
     for i in range(len(currTasks)):         # Task 1 duration: 2 Task 2 duration 4: once task 1 is done even if task 2 is not done see if there is another task to add
         currTask = currTasks[i]
         if currTask.cpu < serverCPU and currTask.memory < serverMemory and currTask.storage < serverStorage:
+            startTimes[currTask.index] = totalDuration
             parallelTasks.append(currTask)
             serverCPU -= currTask.cpu
             serverStorage -= currTask.storage
@@ -90,7 +93,7 @@ def makespan (currTasks, currServer):
         parallelTasks.append(firstTask)
         while not len(parallelTasks) == 0:
             minTimeTask, parallelTasks, serverCPU, serverStorage, serverMemory, currTasks = getParallelTasks(currTasks, parallelTasks, 
-                                                                                                  serverCPU, serverMemory, serverStorage)
+                                                                                                  serverCPU, serverMemory, serverStorage, totalDuration)
             
             for task in parallelTasks:
                 minTimeTask = min(minTimeTask, task.duration)
@@ -105,6 +108,7 @@ def makespan (currTasks, currServer):
                     serverCPU += task.cpu
                     serverMemory += task.memory
                     serverStorage += task.storage
+                    endTimes[task.index] = totalDuration
                 else:
                     nonMinTasks.append(task)
             
@@ -177,6 +181,9 @@ def Random_Scheduler(tasks, servers): # random task allottment for baseline comp
             print("duration of this task ", s.duration)
         index += 1
     '''
+    for i in range(numServers):
+        startTimes.append(0)
+        endTimes.append(0)
     totalCost = getCost(solution, tasks, servers)
     print(totalCost)
-    return totalCost
+    return totalCost, startTimes, endTimes

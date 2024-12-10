@@ -39,9 +39,11 @@ def main ():
     allTasks = Task.initTasks(10)
     allServers = Server.initServers(10)
 
-    randomScheduler = Random_Scheduler(allTasks, allServers)
+    randomScheduler, startTimes, endTimes = Random_Scheduler(allTasks, allServers)
     print("RUNNING THE RANDOM SCHEDULER - ")
     print("time taken by the random scheduler - ", randomScheduler)
+    print("time taken by the random scheduler start times - ", startTimes)
+    print("time taken by the random scheduler end times - ", endTimes)
 
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)

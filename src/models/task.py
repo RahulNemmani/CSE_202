@@ -4,12 +4,13 @@ random.seed(42)
 class Task:
     """Each task has cpu, memory, storage resource capacities AND duration."""
     
-    def __init__(self, cpu, memory, storage, duration):
+    def __init__(self, cpu, memory, storage, duration, index):
         """Initialize the values of the resource capacities and duration."""
         self.cpu = cpu
         self.memory = memory
         self.storage = storage
         self.duration = duration
+        self.index = index
         
     def initTasks(num_models):
         """
@@ -27,7 +28,7 @@ class Task:
             duration = random.uniform(1, 2000) 
             
              # task initialized and added to list of Tasks
-            T.append(Task(c_cpu, c_memory, c_storage, duration))
+            T.append(Task(c_cpu, c_memory, c_storage, duration, i))
             
         return T
     
