@@ -92,7 +92,7 @@ def server_capacities_two_feat(servers):
 #
 #
 #
-def plot_decay_function(epoch, cost, random_cost):
+def plot_cost_decay(epoch, cost, random_cost):
 
     epoch_list = [i for i in range(epoch)]
     # Total Cost Decay
@@ -104,15 +104,18 @@ def plot_decay_function(epoch, cost, random_cost):
     plt.legend()
     plt.show()
 
-    # # Load Imbalance Decay
-    # plt.figure(figsize=(8, 6))
-    # plt.plot(epoch_list, aco_load_imbalance, label="ACO Scheduler")
-    # plt.axhline(y=random_load_imbalance, color='r', linestyle='--', label="Random Scheduler")
-    # plt.title("Load Imbalance Decay")
-    # plt.xlabel("Epochs")
-    # plt.ylabel("Load Imbalance")
-    # plt.legend()
-    # plt.show()
+def plot_loadimb_decay_function(epoch,aco_load_imbalance_list,randomLoadImbalance):
+
+    # Load Imbalance Decay
+    epoch_list = [i for i in range(epoch)]
+    plt.figure(figsize=(8, 6))
+    plt.plot(epoch_list, aco_load_imbalance_list , label="ACO Scheduler")
+    plt.axhline(y=randomLoadImbalance, color='r', linestyle='--', label="Random Scheduler")
+    plt.title("Load Imbalance Decay")
+    plt.xlabel("Epochs")
+    plt.ylabel("Load Imbalance")
+    plt.legend()
+    plt.show()
 
     # # Makespan Decay
     # plt.figure(figsize=(8, 6))

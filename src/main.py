@@ -42,7 +42,7 @@ def main ():
     allTasks = Task.initTasks(n)
     allServers = Server.initServers(m)
 
-    randomScheduler = Random_Scheduler(allTasks, allServers)
+    randomScheduler,randomLoadImbalance = Random_Scheduler(allTasks, allServers)
     print("RUNNING THE RANDOM SCHEDULER - ")
     print("cost of the random scheduler - ", randomScheduler)
 
@@ -66,7 +66,8 @@ def main ():
     # plot_gantt_chart_for_server(tasks)
 
     plot_pheromone_heatmaps(initial_pheromones, final_pheromones)
-    plot_decay_functions(epochs, aco_costs, randomScheduler)
+    plot_loadimb_decay_function(epochs, aco_load_imbalance_list, randomLoadImbalance)
+    # plot_cost_decay(epochs, aco_costs, randomScheduler)
     plot_solution_diversity(epochs, solution_diversity_list)
 
 if __name__ == "__main__":

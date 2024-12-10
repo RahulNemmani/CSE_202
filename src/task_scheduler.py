@@ -206,11 +206,15 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
 
         epoch_list.append(e)
         aco_costs.append(local_best_cost)
+
         aco_load_imbalance_list.append(local_best_load_imbalance)
         aco_makespan_list.append(local_best_makespan)
-        print(global_best_cost)
 
         final_pheromones = [row[:] for row in phermones]
+
+    print ("aco_load_imbalance_list:",aco_load_imbalance_list)
+
+    print("aco_cost:", aco_costs)
     return global_best_cost, final_pheromones, initial_pheromones,solution_diversity_list,aco_costs, aco_load_imbalance_list
     
 
@@ -239,5 +243,7 @@ def Random_Scheduler(tasks, servers): # random task allottment for baseline comp
         index += 1
     '''
     totalCost = getCost(solution, tasks, servers)
-    print(totalCost)
-    return totalCost
+    randomLoadImbalance = load_imbalance(solution, tasks, servers)
+    print("total cost random:",totalCost)
+    print("random load imb", randomLoadImbalance)
+    return totalCost,randomLoadImbalance
