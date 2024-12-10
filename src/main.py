@@ -2,6 +2,8 @@ import random
 import models
 import sys
 import os
+import plotly.express as px
+import pandas as pd
 
 # Add the directory containing 'myclass.py' to sys.path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
@@ -39,9 +41,11 @@ def main ():
     allTasks = Task.initTasks(n)
     allServers = Server.initServers(m)
 
-    randomScheduler = Random_Scheduler(allTasks, allServers)
+    randomScheduler, startTimes, endTimes = Random_Scheduler(allTasks, allServers)
     print("RUNNING THE RANDOM SCHEDULER - ")
-    print("cost of the random scheduler - ", randomScheduler)
+    print("time taken by the random scheduler - ", randomScheduler)
+    print("time taken by the random scheduler start times - ", startTimes)
+    print("time taken by the random scheduler end times - ", endTimes)
 
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)
@@ -49,6 +53,26 @@ def main ():
     print("cost of the ACO scheduler - ", ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler))
     print("cost of the random scheduler - ", randomScheduler)
     print([task.duration for task in tasks])
+
+    taskIds = list(startTimes.keys())
+    
+    taskIds.sort()
+
+    sortedStartTimes = []
+    sortedEndTimes = []
+    for taskId in taskIds:
+        sortedStartTimes.append(startTimes[taskId])
+        sortedEndTimes.append(endTimes[taskId])
+
+    df = pd.DataFrame({
+        "Task": [f"Task {i}" for i in range(len(taskIds))],
+        "Start": sortedStartTimes,
+        "Finish": sortedEndTimes,
+    })
+
+    fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task", title="Project Gantt Chart")   # will have to change the timeline here
+    fig.update_yaxes(categoryorder="total ascending")  # Optional: Order tasks by start date
+    #fig.show()
 
 
 if __name__ == "__main__":
