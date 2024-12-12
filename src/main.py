@@ -2,6 +2,8 @@ import random
 import models
 import sys
 import os
+import plotly.express as px
+import pandas as pd
 
 # Add the directory containing 'myclass.py' to sys.path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'models'))
@@ -42,22 +44,24 @@ def main ():
     allTasks = Task.initTasks(n)
     allServers = Server.initServers(m)
 
-    randomScheduler = Random_Scheduler(allTasks, allServers)
+    randomScheduler,randomLoadImbalance,startTimes, endTimes = Random_Scheduler(allTasks, allServers)
     print("RUNNING THE RANDOM SCHEDULER - ")
     print("cost of the random scheduler - ", randomScheduler)
+    print("time taken by the random scheduler start times - ", startTimes)
+    print("time taken by the random scheduler end times - ", endTimes)
 
     tasks = Task.initTasks(n)
     servers = Server.initServers(m)
-
-
 
     print("RUNNING THE ACO SCHEDULER")
     print("cost of the ACO scheduler - ", ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler))
     print("cost of the random scheduler - ", randomScheduler)
     print([task.duration for task in tasks])
 
-    global_best_cost, final_pheromones, initial_pheromones,solution_diversity_list,aco_costs, aco_load_imbalance_list = ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler)
-
+    global_best_cost, final_pheromones, initial_pheromones,solution_diversity_list,aco_costs, aco_load_imbalance_list,aco_startTimes, aco_endTimes = ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler)
+    print("aco_starttime:",aco_startTimes)
+    print("aco_endtimes:",aco_endTimes)
+    plot_gantt_chart(servers[0], tasks, startTimes, endTimes)
     histo_plot_task_dur(tasks)
     plot_task_resource_requirements(tasks)
 
@@ -66,8 +70,10 @@ def main ():
     # plot_gantt_chart_for_server(tasks)
 
     plot_pheromone_heatmaps(initial_pheromones, final_pheromones)
-    plot_decay_functions(epochs, aco_costs, randomScheduler)
+    plot_loadimb_decay_function(epochs, aco_load_imbalance_list, randomLoadImbalance)
+    plot_cost_decay(epochs, aco_costs, randomScheduler)
     plot_solution_diversity(epochs, solution_diversity_list)
+    plot_parameter_effects()
 
 if __name__ == "__main__":
     main()

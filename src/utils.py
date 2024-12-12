@@ -1,15 +1,12 @@
 #draw graphs/plots here
 import matplotlib.pyplot as plt
-import numpy as np
 import seaborn as sns
-
-from src.main import epochs
-
 
 #Task Properties
 
 def histo_plot_task_dur(tasks):
     task_durations = [i.duration for i in tasks]
+    print("task_duration:",task_durations)
 
     plt.hist(task_durations , color='blue', edgecolor='black')
     plt.title("Histogram of Task Durations")
@@ -75,24 +72,25 @@ def server_capacities_two_feat(servers):
     plt.show()
 
 
+def plot_gantt_chart(server_index, tasks, startTimes, endTimes):
+    fig, ax = plt.subplots()
 
+    for task in tasks:
+        task_id = str(task.index)
+        if task_id in startTimes and task_id in endTimes:
+            start = startTimes[task_id]
+            end = endTimes[task_id]
+            ax.broken_barh([(start, end - start)], (task.index * 10, 8), facecolors='skyblue', label=f"Task {task.index}")
 
-# # Plot the Gantt chart
-# def plot_gantt_chart(schedule):
-#     plt.figure(figsize=(12, 6))
-#     for task_id, start, end in schedule:
-#         plt.barh(y=f"Task {task_id}", left=start, width=end - start, edgecolor='black', height=0.5)
-#     plt.title("Gantt Chart for Task Parallelization on a Server")
-#     plt.xlabel("Time")
-#     plt.ylabel("Tasks")
-#     plt.show()
-#
-#
-#
-#
-#
-#
-def plot_decay_function(epoch, cost, random_cost):
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Tasks")
+
+    ax.set_yticks([task.index * 10  + 4 for task in tasks])
+    ax.set_yticklabels([task.index for task in tasks])
+
+    plt.show()
+
+def plot_cost_decay(epoch, cost, random_cost):
 
     epoch_list = [i for i in range(epoch)]
     # Total Cost Decay
@@ -104,26 +102,18 @@ def plot_decay_function(epoch, cost, random_cost):
     plt.legend()
     plt.show()
 
-    # # Load Imbalance Decay
-    # plt.figure(figsize=(8, 6))
-    # plt.plot(epoch_list, aco_load_imbalance, label="ACO Scheduler")
-    # plt.axhline(y=random_load_imbalance, color='r', linestyle='--', label="Random Scheduler")
-    # plt.title("Load Imbalance Decay")
-    # plt.xlabel("Epochs")
-    # plt.ylabel("Load Imbalance")
-    # plt.legend()
-    # plt.show()
+def plot_loadimb_decay_function(epoch,aco_load_imbalance_list,randomLoadImbalance):
 
-    # # Makespan Decay
-    # plt.figure(figsize=(8, 6))
-    # plt.plot(epoch_list, aco_makespan, label="ACO Scheduler")
-    # plt.axhline(y=random_makespan, color='r', linestyle='--', label="Random Scheduler")
-    # plt.title("Makespan Decay")
-    # plt.xlabel("Epochs")
-    # plt.ylabel("Makespan")
-    # plt.legend()
-    # plt.show()
-
+    # Load Imbalance Decay
+    epoch_list = [i for i in range(epoch)]
+    plt.figure(figsize=(8, 6))
+    plt.plot(epoch_list, aco_load_imbalance_list , label="ACO Scheduler")
+    plt.axhline(y=randomLoadImbalance, color='r', linestyle='--', label="Random Scheduler")
+    plt.title("Load Imbalance Decay")
+    plt.xlabel("Epochs")
+    plt.ylabel("Load Imbalance")
+    plt.legend()
+    plt.show()
 
 
 def plot_pheromone_heatmaps(initial_pheromones, final_pheromones):
@@ -158,3 +148,4 @@ def plot_solution_diversity(epochs, solution_diversity):
     plt.xlabel("Epochs")
     plt.ylabel("Diversity Between Successive Solutions")
     plt.show()
+
