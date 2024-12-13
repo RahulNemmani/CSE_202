@@ -149,8 +149,10 @@ def calculate_solution_diversity(solution1, solution2):
     Calculates the Hamming distance between two solutions.
     """
     diversity = 0
-    for server1, server2 in zip(solution1, solution2):
-        diversity += len(set(server1).symmetric_difference(set(server2)))
+    for server in range(len(solution1)):
+        set1 = set(solution1[server])
+        set2 = set(solution2[server])
+        diversity += len(set1.symmetric_difference(set2))
     return diversity
 
 
@@ -223,6 +225,8 @@ def ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, ph
         if previous_solution is not None:
             diversity = calculate_solution_diversity(global_best_solution, previous_solution)
             solution_diversity_list.append(diversity)
+        else:
+            solution_diversity_list.append(0)
         previous_solution = global_best_solution
 
         epoch_list.append(e)

@@ -1,6 +1,7 @@
 #draw graphs/plots here
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 #Task Properties
 
@@ -72,23 +73,28 @@ def server_capacities_two_feat(servers):
     plt.show()
 
 
+#Gnatt Chart for parallelization
+
 def plot_gantt_chart(server_index, tasks, startTimes, endTimes):
     fig, ax = plt.subplots()
+    valid_tasks = [task for task in tasks if str(task.index) in startTimes and str(task.index) in endTimes]
 
-    for task in tasks:
+    for i, task in enumerate(valid_tasks, start=1):
         task_id = str(task.index)
-        if task_id in startTimes and task_id in endTimes:
-            start = startTimes[task_id]
-            end = endTimes[task_id]
-            ax.broken_barh([(start, end - start)], (task.index * 10, 8), facecolors='skyblue', label=f"Task {task.index}")
+        start = startTimes[task_id]
+        end = endTimes[task_id]
+        ax.broken_barh([(start, end - start)], (i * 10, 4), facecolors='blue', edgecolor='black')
 
     ax.set_xlabel("Time")
     ax.set_ylabel("Tasks")
+    ax.set_title(f"Gantt Chart for Server[0]")
 
-    ax.set_yticks([task.index * 10  + 4 for task in tasks])
-    ax.set_yticklabels([task.index for task in tasks])
+    # Set the y-ticks for valid tasks starting from y=1 and incrementing for each valid task
+    ax.set_yticks([idx * 10 + 4 for idx in range(1, len(valid_tasks) + 1)])
+    ax.set_yticklabels([f"Task {valid_tasks[i-1].index}" for i in range(1, len(valid_tasks) + 1)])
 
     plt.show()
+
 
 def plot_cost_decay(epoch, cost, random_cost):
 
@@ -131,18 +137,18 @@ def plot_pheromone_heatmaps(initial_pheromones, final_pheromones):
     plt.ylabel("Tasks")
     plt.show()
 
-
-
-# def plot_param_effects(param_values, final_costs):
-#     plt.plot(param_values, final_costs, marker='o')
-#     plt.title("Effect of Parameters on Final Cost")
-#     plt.xlabel("Parameter Value")
-#     plt.ylabel("Final Cost")
-#     plt.show()
+def plot_alpha_vs_cost(alphas,global_best_costs_list):
+    plt.figure(figsize=(10, 6))
+    plt.plot(alphas, global_best_costs_list, marker='o', linestyle='-', label='Global Best Cost')
+    plt.xlabel('Alpha')
+    plt.ylabel('Global Best Cost')
+    plt.title('Alpha vs Global Best Cost')
+    plt.legend()
+    plt.show()
 
 def plot_solution_diversity(epochs, solution_diversity):
-    plt.figure(figsize=(8, 6))
-    epochs_list=[i for i in range(epochs-1)]
+
+    epochs_list=[i for i in range(epochs)]
     plt.plot(epochs_list, solution_diversity, marker='o')
     plt.title("Solution Diversity Across Epochs")
     plt.xlabel("Epochs")

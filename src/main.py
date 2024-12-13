@@ -12,7 +12,7 @@ from task_scheduler import *
 # alpha, beta, rho, Q, E, tasks, servers, phermones
 # E, phermones are matrices (len(tasks) * len(servers)) or it's transpose
 # tasks and servers are instances of the task and server in models
-alpha = 0
+
 beta = 1
 rho = 0.0
 Q = 10000
@@ -41,6 +41,7 @@ from utils import *
 
 
 def main ():
+    alpha = 0
     allTasks = Task.initTasks(n)
     allServers = Server.initServers(m)
 
@@ -59,21 +60,41 @@ def main ():
     print([task.duration for task in tasks])
 
     global_best_cost, final_pheromones, initial_pheromones,solution_diversity_list,aco_costs, aco_load_imbalance_list,aco_startTimes, aco_endTimes = ACO_Scheduler(alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler)
-    print("aco_starttime:",aco_startTimes)
-    print("aco_endtimes:",aco_endTimes)
-    plot_gantt_chart(servers[0], tasks, startTimes, endTimes)
+
+
     histo_plot_task_dur(tasks)
     plot_task_resource_requirements(tasks)
 
     server_capacities(servers)
     server_capacities_two_feat(servers)
-    # plot_gantt_chart_for_server(tasks)
+
+    plot_gantt_chart(servers[0], tasks, startTimes, endTimes)
 
     plot_pheromone_heatmaps(initial_pheromones, final_pheromones)
-    plot_loadimb_decay_function(epochs, aco_load_imbalance_list, randomLoadImbalance)
+
     plot_cost_decay(epochs, aco_costs, randomScheduler)
+    plot_loadimb_decay_function(epochs, aco_load_imbalance_list, randomLoadImbalance)
+
     plot_solution_diversity(epochs, solution_diversity_list)
-    plot_parameter_effects()
+
+    alphas = []
+    global_best_costs_list = []
+
+    i=0
+
+    while i < 1:
+
+        alpha = i
+        alphas.append(alpha)
+        global_best_cost, final_pheromones, initial_pheromones, solution_diversity_list, aco_costs, aco_load_imbalance_list, aco_startTimes, aco_endTimes = ACO_Scheduler(
+            alpha, beta, rho, Q, E, epochs, ants, n, m, tasks, servers, phermones, randomScheduler)
+        global_best_costs_list.append(global_best_cost)
+
+        i+=0.05
+
+    plot_alpha_vs_cost(alphas,global_best_costs_list)
+
+
 
 if __name__ == "__main__":
     main()
