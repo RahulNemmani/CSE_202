@@ -1,7 +1,7 @@
 #draw graphs/plots here
 import matplotlib.pyplot as plt
 import seaborn as sns
-import pandas as pd
+
 
 #Task Properties
 
@@ -89,7 +89,6 @@ def plot_gantt_chart(server_index, tasks, startTimes, endTimes):
     ax.set_ylabel("Tasks")
     ax.set_title(f"Gantt Chart for Server[0]")
 
-    # Set the y-ticks for valid tasks starting from y=1 and incrementing for each valid task
     ax.set_yticks([idx * 10 + 4 for idx in range(1, len(valid_tasks) + 1)])
     ax.set_yticklabels([f"Task {valid_tasks[i-1].index}" for i in range(1, len(valid_tasks) + 1)])
 
