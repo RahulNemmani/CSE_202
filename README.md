@@ -1,1 +1,3 @@
-Instructions on how to run the code etc.
+Install 
+
+run main.py
